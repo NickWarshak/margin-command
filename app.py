@@ -103,22 +103,11 @@ if st.session_state["authentication_status"]:
         styled_pivot = final_pivot.style.applymap(color_delta).format(lambda x: "" if x == 0 else x)
         st.dataframe(styled_pivot, use_container_width=True)
 
-        # --- VELOCITY TABLE (Updated to include Series) ---
-        # Adding 'Series' to the index keeps models distinct
-        inv_pivot = f_inv.pivot_table(index=['Series', 'Trim'], columns='EXT/INT', values='VIN', aggfunc='count', fill_value=0)
-        sales_pivot = f_sales.pivot_table(index=['Series', 'Trim'], columns='EXT/INT', values='VIN', aggfunc='count', fill_value=0)
-        
-        # Subtracting keeping the multi-index (Series + Trim)
-        final_pivot = inv_pivot.subtract(sales_pivot, fill_value=0).fillna(0).astype(int)
-
+       
         def color_delta(val):
             if val > 0: return 'color: green; font-weight: bold'
             elif val < 0: return 'color: red; font-weight: bold'
             return 'color: black'
-
-        st.subheader("Current Stock - Last Month Sales")
-        styled_pivot = final_pivot.style.applymap(color_delta).format(lambda x: "" if x == 0 else x)
-        st.dataframe(styled_pivot, use_container_width=True)
 
         # --- CRITICAL SHORTAGE SECTION (Updated) ---
         shortages = []
