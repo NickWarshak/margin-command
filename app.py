@@ -121,14 +121,15 @@ if st.session_state["authentication_status"]:
                     })
 
         if shortages:
-            st.error(f" **Shortage Alert:** {len(shortages)} configurations sold more last month than currently in stock.")
-            
+           
             # Table sorted by the biggest shortage first
             short_df = pd.DataFrame(shortages)[["Series", "Trim", "Color", "Shortage"]].sort_values(by="Shortage", ascending=False)
             
             col1, col2 = st.columns([2, 1])
             with col1:
                 st.dataframe(short_df, hide_index=True, use_container_width=True)
+            with col2:
+                st.error(f" **Shortage Alert:** {len(shortages)} configurations sold more last month than currently in stock.")
 
         # --- SUNBURST ---
         st.subheader("Interactive Inventory Drill-Down")
