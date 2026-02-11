@@ -143,8 +143,6 @@ if st.session_state["authentication_status"]:
             col1, col2 = st.columns([2, 1])
             with col1:
                 st.dataframe(short_df, hide_index=True, use_container_width=True)
-            with col2:
-                st.info("High-velocity units: These specific configurations sold out faster than they were replenished last month.")
 
         # --- SUNBURST ---
         st.subheader("Interactive Inventory Drill-Down")
