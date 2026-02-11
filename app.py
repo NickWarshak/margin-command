@@ -129,8 +129,6 @@ if st.session_state["authentication_status"]:
             col1, col2 = st.columns([2, 1])
             with col1:
                 st.dataframe(short_df, hide_index=True, use_container_width=True)
-            with col2:
-                st.info("These specific configurations are high-velocity. Managers should prioritize acquiring these units.")
 
         # --- SUNBURST ---
         st.subheader("Interactive Inventory Drill-Down")
