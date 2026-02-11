@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 credentials:
   usernames:
     nwarshak:
@@ -14,4 +15,22 @@ cookie:
   name: kia_auth_cookie
 preauthorized:
   emails:
+=======
+credentials:
+  usernames:
+    nwarshak:
+      email: warshanj@mail.uc.edu
+      name: Nick Warshak
+      password: '$2b$12$8WxognREFrh80n9KOy7z/.IYNqJsoP6IyMEuKvQCBGv9iVCsGCeRO'
+    kiamanager:
+      email: managers@jakesweeney.com
+      name: Kia Managers
+      password: '$2b$12$iJ683yzFiy1MLdtT1usktu9yHlIhVjvle6o0Xka4MHCvZTW13p/FO'
+cookie:
+  expiry_days: 30
+  key: kia_dashboard_secret_key
+  name: kia_auth_cookie
+preauthorized:
+  emails:
+>>>>>>> 925a4c6 (updated dashboard filters and removed sensitive files)
     - nwarshak@uc.edu

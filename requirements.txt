@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 streamlit
 pandas
 openpyxl
@@ -5,3 +6,12 @@ plotly
 pyyaml
 streamlit-authenticator
 bcrypt
+=======
+streamlit
+pandas
+openpyxl
+plotly
+pyyaml
+streamlit-authenticator
+bcrypt
+>>>>>>> 925a4c6 (updated dashboard filters and removed sensitive files)
