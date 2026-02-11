@@ -103,11 +103,48 @@ if st.session_state["authentication_status"]:
         styled_pivot = final_pivot.style.applymap(color_delta).format(lambda x: "" if x == 0 else x)
         st.dataframe(styled_pivot, use_container_width=True)
 
-       
+        # --- VELOCITY TABLE ---
+        # Using [Series, Trim] in the index keeps models distinct when 'Select All' is used
+        inv_pivot = f_inv.pivot_table(index=['Series', 'Trim'], columns='EXT/INT', values='VIN', aggfunc='count', fill_value=0)
+        sales_pivot = f_sales.pivot_table(index=['Series', 'Trim'], columns='EXT/INT', values='VIN', aggfunc='count', fill_value=0)
+        
+        # Calculate Delta: Stock minus Sales
+        final_pivot = inv_pivot.subtract(sales_pivot, fill_value=0).fillna(0).astype(int)
+
         def color_delta(val):
             if val > 0: return 'color: green; font-weight: bold'
             elif val < 0: return 'color: red; font-weight: bold'
             return 'color: black'
+
+        st.subheader("Current Stock - Last Month Sales")
+        styled_pivot = final_pivot.style.applymap(color_delta).format(lambda x: "" if x == 0 else x)
+        st.dataframe(styled_pivot, use_container_width=True)
+
+        # --- CRITICAL SHORTAGE SECTION ---
+        shortages = []
+        # Iterate through the multi-index (Series, Trim) to find negative deltas
+        for (series, trim) in final_pivot.index:
+            for color in final_pivot.columns:
+                val = final_pivot.loc[(series, trim), color]
+                if val < 0:
+                    shortages.append({
+                        "Series": series,
+                        "Trim": trim,
+                        "Color": color,
+                        "Shortage": abs(val)
+                    })
+
+        if shortages:
+            st.error(f" **Shortage Alert:** {len(shortages)} configurations sold more last month than currently in stock.")
+            
+            # Table sorted by the biggest shortage first
+            short_df = pd.DataFrame(shortages)[["Series", "Trim", "Color", "Shortage"]].sort_values(by="Shortage", ascending=False)
+            
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                st.dataframe(short_df, hide_index=True, use_container_width=True)
+            with col2:
+                st.info("These specific configurations are high-velocity. Managers should prioritize acquiring these units.")
 
         # --- CRITICAL SHORTAGE SECTION (Updated) ---
         shortages = []
@@ -132,6 +169,7 @@ if st.session_state["authentication_status"]:
             col1, col2 = st.columns([2, 1])
             with col1:
                 st.dataframe(short_df, hide_index=True, use_container_width=True)
+           
 
         # --- SUNBURST ---
         st.subheader("Interactive Inventory Drill-Down")
