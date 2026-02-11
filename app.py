@@ -103,6 +103,32 @@ if st.session_state["authentication_status"]:
         styled_pivot = final_pivot.style.applymap(color_delta).format(lambda x: "" if x == 0 else x)
         st.dataframe(styled_pivot, use_container_width=True)
 
+        # --- CRITICAL SHORTAGE SECTION ---
+        # Any value < 0 in final_pivot means Sales > Stock
+        shortages = []
+        for trim in final_pivot.index:
+            for color in final_pivot.columns:
+                val = final_pivot.loc[trim, color]
+                if val < 0:
+                    shortages.append({
+                        "Trim": trim,
+                        "Color": color,
+                        "Shortage": abs(val) # Show as a positive "Need" number
+                    })
+
+        if shortages:
+            st.error(f"⚠️ **Critical Shortage Alert:** {len(shortages)} configurations sold more last month than currently in stock!")
+            
+            # Create a clean table for the alert
+            short_df = pd.DataFrame(shortages).sort_values(by="Shortage", ascending=False)
+            
+            # Use columns to make it look like a "Flag" area
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                st.dataframe(short_df, hide_index=True, use_container_width=True)
+            with col2:
+                st.info("These units represent high-velocity configurations that are currently under-stocked relative to last month's demand.")
+
         # --- SUNBURST ---
         st.subheader("Interactive Inventory Drill-Down")
         fig = px.sunburst(f_inv, path=['Series', 'Trim', 'EXT/INT', 'OPT GRP'], color='Trim', color_discrete_sequence=px.colors.qualitative.Pastel)
