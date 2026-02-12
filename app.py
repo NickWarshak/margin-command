@@ -5,10 +5,8 @@ import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 
-# 1. MUST BE THE VERY FIRST STREAMLIT COMMAND
 st.set_page_config(page_title="Kia Digital Dashboard", layout="wide")
 
-# 2. LOAD AUTHENTICATION CONFIG
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
@@ -19,12 +17,9 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# 3. RENDER LOGIN (Lowercase 'main')
 authenticator.login('main')
 
-# 4. CHECK AUTHENTICATION STATUS
 if st.session_state["authentication_status"]:
-    # --- AUTHENTICATED AREA ---
     authenticator.logout('Logout', 'sidebar')
     st.sidebar.write(f"Welcome, *{st.session_state['name']}*")
     st.title("Kia Inventory Dashboard")
@@ -35,7 +30,6 @@ if st.session_state["authentication_status"]:
         xl = pd.ExcelFile(file_path)
         sheets = xl.sheet_names
         
-        # Case-insensitive search for sheets
         inv_s = [s for s in sheets if 'dealer' in s.lower()][0]
         key_s = [s for s in sheets if 'key' in s.lower()][0]
         sal_s = [s for s in sheets if 'sales' in s.lower()][0]
@@ -44,7 +38,6 @@ if st.session_state["authentication_status"]:
         key_df = pd.read_excel(file_path, sheet_name=key_s)
         sales_df = pd.read_excel(file_path, sheet_name=sal_s)
 
-        # --- CLEANING ---
         inventory_df = inventory_df.dropna(subset=['VIN']).copy()
         inventory_df['VIN'] = inventory_df['VIN'].astype(str)
         inventory_df = inventory_df[inventory_df['VIN'].str.contains(r'\d', na=False)]
@@ -57,11 +50,9 @@ if st.session_state["authentication_status"]:
             col = 'MODEL' if 'MODEL' in df_tmp.columns else 'Model Code'
             df_tmp[col] = df_tmp[col].astype(str).str.strip()
 
-        # --- MERGE ---
         inv_final = pd.merge(inventory_df, key_df, left_on='MODEL', right_on='Model Code', how='left')
         sales_final = pd.merge(sales_df, key_df, left_on='MODEL', right_on='Model Code', how='left')
 
-        # --- DATA SAFETY ---
         for df_f in [inv_final, sales_final]:
             df_f['Series'] = df_f['Series'].fillna('Unknown').astype(str)
             df_f['Trim'] = df_f['Trim'].fillna('Unknown').astype(str)
@@ -75,7 +66,6 @@ if st.session_state["authentication_status"]:
     try:
         inv_df, sales_df = load_data()
 
-        # --- SIDEBAR & STATUS HEADERS ---
         all_series = sorted(inv_df['Series'].unique().tolist())
         default_val = ['Carnival'] if 'Carnival' in all_series else [all_series[0]]
         selected_series = st.sidebar.multiselect("Select Series:", options=all_series, default=default_val)
@@ -89,12 +79,9 @@ if st.session_state["authentication_status"]:
         st.write(f"### Total stock: {len(f_inv)}")
         st.write(f"###### DS: {get_count('DS')} | AA: {get_count('AA')} | FA: {get_count('FA')} | IT: {get_count('IT')} | PA: {get_count('PA')} | TN: {get_count('TN')} | VA: {get_count('VA')}")
 
-        # --- VELOCITY TABLE ---
-        # Using [Series, Trim] in the index keeps models distinct when 'Select All' is used
         inv_pivot = f_inv.pivot_table(index=['Series', 'Trim'], columns='EXT/INT', values='VIN', aggfunc='count', fill_value=0)
         sales_pivot = f_sales.pivot_table(index=['Series', 'Trim'], columns='EXT/INT', values='VIN', aggfunc='count', fill_value=0)
         
-        # Calculate Delta: Stock minus Sales
         final_pivot = inv_pivot.subtract(sales_pivot, fill_value=0).fillna(0).astype(int)
 
         def color_delta(val):
@@ -106,9 +93,7 @@ if st.session_state["authentication_status"]:
         styled_pivot = final_pivot.style.applymap(color_delta).format(lambda x: "" if x == 0 else x)
         st.dataframe(styled_pivot, use_container_width=True)
 
-        # --- CRITICAL SHORTAGE SECTION ---
         shortages = []
-        # Iterate through the multi-index (Series, Trim) to find negative deltas
         for (series, trim) in final_pivot.index:
             for color in final_pivot.columns:
                 val = final_pivot.loc[(series, trim), color]
@@ -122,7 +107,6 @@ if st.session_state["authentication_status"]:
 
         if shortages:
            
-            # Table sorted by the biggest shortage first
             short_df = pd.DataFrame(shortages)[["Series", "Trim", "Color", "Shortage"]].sort_values(by="Shortage", ascending=False)
             
             col1, col2 = st.columns([2, 1])
@@ -131,7 +115,6 @@ if st.session_state["authentication_status"]:
             with col2:
                 st.error(f" **Shortage Alert:** {len(shortages)} configurations sold more last month than currently in stock.")
 
-        # --- SUNBURST ---
         st.subheader("Interactive Inventory Drill-Down")
         fig = px.sunburst(f_inv, path=['Series', 'Trim', 'EXT/INT', 'OPT GRP'], color='Trim', color_discrete_sequence=px.colors.qualitative.Pastel)
         fig.update_traces(textinfo="label", maxdepth=3, hovertemplate='<b>%{label}</b><br>Count: %{value}')
@@ -141,7 +124,6 @@ if st.session_state["authentication_status"]:
     except Exception as e:
         st.error(f"Dashboard Error: {e}")
 
-    # --- FOOTER ---
     st.markdown("---")
     st.markdown('<div style="text-align: center; color: gray;">created by nick warshak</div>', unsafe_allow_html=True)
 
