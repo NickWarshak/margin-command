@@ -109,8 +109,10 @@ def generate_simulation():
     return inv_df, pd.DataFrame(sales_rows)
 
 # --- 2. SIDEBAR ---
-st.sidebar.markdown("<h1 style='font-size: 40px;'>M.C.</h1>", unsafe_allow_html=True)
-st.sidebar.markdown("<div class='sidebar-label'>CONTROL PANEL</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<h1 style='font-size: 40px; margin-bottom: 0px;'>Margin Command</h1>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='font-family: \"DM Serif Display\", serif; font-style: italic; font-size: 16px; margin-top: -15px; color: #555;'>by Jane and Rye</p>", unsafe_allow_html=True)
+
+st.sidebar.markdown("<div class='sidebar-label' style='margin-top: 30px;'>CONTROL PANEL</div>", unsafe_allow_html=True)
 
 if st.sidebar.button("Initialize Data Engine"):
     inv, sales = generate_simulation()
