@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#002349" # Primland Navy
+backgroundColor = "#FFFFFF" # Clean White
+secondaryBackgroundColor = "#F8F9FA" # Light Gray for sidebar/cards
+textColor = "#1A1A1A" # Near Black
+font = "serif" # Gives it that high-end look    
