@@ -9,6 +9,16 @@ st.set_page_config(page_title="Jane & Rye | Margin Command", layout="wide", init
 
 st.markdown("""
 <style>
+    /* 1. Target the Multiselect Pills (Series Names) */
+    span[data-baseweb="tag"] {
+        background-color: #1F2937 !important; /* Navy Blue background */
+        border: 1px solid rgba(225, 29, 72, 0.2) !important; /* Subtle Red border for J&R feel */
+    }
+
+    /* 2. Target the Active Tab Underline (Inventory Matrix line) */
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #1F2937 !important; /* Navy Blue line */
+    }
     /* Dark Mode Global Background & Typography */
     @import url('https://fonts.googleapis.com/css2?family=Rockwell:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
     
