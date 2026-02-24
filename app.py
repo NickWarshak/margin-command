@@ -61,7 +61,7 @@ st.markdown("""
     }
     [data-testid="stDataFrame"] tr:hover td {
         color: #FFFFFF !important;
-        background-color: rgba(255, 255, 255, 0.05) !important;
+        background-color: rgba(225, 29, 72, 0.1) !important;
     }
 
     /* High-Contrast Metrics */
@@ -212,7 +212,20 @@ if "inv_data" in st.session_state:
 
     with tab3:
         st.markdown("### Asset Composition")
-        jr_palette = ["#e11d48", "#1F2937", "#FFFFFF", "#6B7280", "#9F1239", "#111827", "#D1D5DB", "#EF4444", "#374151", "#F3F4F6", "#4B5563"]
+        # UPDATED PALETTE: Swapped dark navy/slates for dark reds/crimsons
+        jr_palette = [
+            "#e11d48", # J&R Red
+            "#4c0519", # Darkest Crimson (Replacing Navy)
+            "#FFFFFF", # White
+            "#881337", # Deep Rose
+            "#9f1239", # Deep Crimson
+            "#fb7185", # Soft Red/Pink
+            "#D1D5DB", # Light Gray
+            "#be123c", # Solid Red
+            "#450a0a", # Blood Red (Replacing Charcoal)
+            "#F3F4F6", # Off White
+            "#991b1b"  # Dark Red
+        ]
         
         fig = px.sunburst(
             f_inv,
