@@ -4,80 +4,69 @@ import plotly.express as px
 import numpy as np
 import random
 
-# --- 0. THE REFINED STYLING (Modern Slate & Indigo) ---
-st.set_page_config(page_title="Executive Command", layout="wide", initial_sidebar_state="expanded")
+# --- 0. THE LIGHT GALLERY STYLING ---
+st.set_page_config(page_title="Margin Command | Elite", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap');
     
-    /* Global Reset */
-    .stApp { background-color: #0E1117; color: #E0E0E0; }
-    html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
+    /* Global Styles */
+    .stApp { background-color: #F9F7F2; color: #1A1A1A; }
+    [data-testid="stSidebar"] { background-color: #F1EEE6; border-right: 1px solid #E0DDD5; }
     
-    /* Sidebar Sophistication */
-    [data-testid="stSidebar"] { 
-        background-color: #0B0E14; 
-        border-right: 1px solid rgba(255, 255, 255, 0.05); 
-    }
-    
-    /* Card-like Containers */
-    div.stElementContainer { margin-bottom: 0.5rem; }
-    
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    h1, h2, h3 { font-family: 'DM Serif Display', serif !important; color: #1A1A1A !important; font-weight: 400 !important; }
+
     /* Tab Styling */
-    .stTabs [data-baseweb="tab-list"] { 
-        gap: 24px; 
-        background-color: transparent; 
-    }
+    .stTabs [data-baseweb="tab-list"] { gap: 24px; background-color: transparent; border-bottom: 2px solid #E0DDD5; }
     .stTabs [data-baseweb="tab"] { 
-        height: 45px; 
+        height: 60px; 
         background-color: transparent; 
-        border: none;
-        color: #888;
-        font-weight: 400;
-        font-size: 14px;
-        transition: all 0.2s ease;
+        border: none; 
+        font-weight: 600; 
+        color: #888; 
+        text-transform: uppercase; 
+        letter-spacing: 1px; 
+        font-size: 12px; 
     }
     .stTabs [aria-selected="true"] { 
-        color: #6366F1 !important; 
-        border-bottom: 2px solid #6366F1 !important;
-        font-weight: 600;
+        color: #1A1A1A !important; 
+        border-bottom: 2px solid #1A1A1A !important; 
     }
 
-    /* Modern Table / DataFrame */
-    [data-testid="stDataFrame"] {
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-    }
-    
-    /* Metrics Customization */
-    [data-testid="stMetric"] {
-        background-color: rgba(255, 255, 255, 0.03);
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    [data-testid="stMetricValue"] { color: #FFFFFF !important; font-weight: 800 !important; }
-    [data-testid="stMetricLabel"] { color: #6366F1 !important; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
-
-    /* Button Styling */
-    .stButton>button { 
-        border-radius: 8px; 
-        background-color: #6366F1; 
-        color: white; 
-        border: none;
-        font-weight: 600;
-        padding: 0.5rem 1rem;
-        transition: 0.3s;
-    }
-    .stButton>button:hover { background-color: #4F46E5; border: none; color: white; }
-    
-    /* Hide Default Headers */
     #MainMenu, footer, header {visibility: hidden;}
+    
+    /* Elegant Dataframe */
+    [data-testid="stDataFrame"] {
+        border: 1px solid #E0DDD5; 
+        border-radius: 8px; 
+        background-color: #FFFFFF;
+    }
+    
+    /* Metrics */
+    [data-testid="stMetricValue"] { color: #1A1A1A !important; font-family: 'DM Serif Display', serif !important; font-size: 3rem !important; }
+    [data-testid="stMetricLabel"] { color: #666 !important; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Buttons - Clean & Minimal */
+    .stButton>button { 
+        width: 100%; 
+        background-color: #1A1A1A; 
+        color: white; 
+        border: none; 
+        border-radius: 4px; 
+        padding: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .stButton>button:hover { background-color: #444; color: white; }
+    
+    /* Sidebar Text */
+    .sidebar-label { color: #888; font-size: 10px; letter-spacing: 2px; font-weight: 600; margin-bottom: 8px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 1. DATA LOGIC (UNCHANGED) ---
+# --- 1. DATA GENERATION (Unchanged Logic) ---
 @st.cache_data
 def get_model_key():
     data = [
@@ -97,93 +86,106 @@ def get_model_key():
 
 def generate_simulation():
     key_df = get_model_key()
-    inv_rows, sales_rows = [], []
-    colors = ["Glacial White Pearl", "Ebony Black", "Wolf Gray", "Gravity Gray", "Everlasting Silver", "Dawning Red"]
-    
+    inv_rows = []
+    colors = ["Glacial White", "Ebony Black", "Wolf Gray", "Gravity Gray", "Everlasting Silver", "Dawning Red"]
     for _ in range(180):
         row = key_df.sample(n=1).iloc[0]
         days = random.randint(1, 140)
         inv_rows.append({
-            "Series": row["Series"], "Trim": row["Trim"], "DisplayColor": random.choice(colors),
-            "VIN": f"5XX{random.randint(1000000, 9999999)}", "Status": random.choice(["GROUND", "TRANSIT"]),
-            "Days_on_Lot": days, "Est_Bleed_Cost": days * 18, "Demand": random.randint(10, 95)
+            "Series": row["Series"], "MODEL": row["Model Code"], "Trim": row["Trim"],
+            "DisplayColor": random.choice(colors), "VIN": f"5XX{random.randint(1000000, 9999999)}",
+            "Status": random.choice(["GROUND", "TRANSIT", "PDI"]),
+            "Days_on_Lot": days, "Est_Bleed_Cost": f"${days * 18:,}",
+            "CRM_Demand_Score": random.randint(10, 95)
         })
+    inv_df = pd.DataFrame(inv_rows)
+    sales_rows = []
     for _ in range(140):
         row = key_df.sample(n=1).iloc[0]
         sales_rows.append({
-            "Series": row["Series"], "Trim": row["Trim"], "DisplayColor": random.choice(colors), "VIN": f"5XX{random.randint(1000000, 9999999)}"
+            "Series": row["Series"], "Trim": row["Trim"], "DisplayColor": random.choice(colors),
+            "VIN": f"5XX{random.randint(1000000, 9999999)}", "Gross_Profit": random.randint(800, 4500)
         })
-    return pd.DataFrame(inv_rows), pd.DataFrame(sales_rows)
+    return inv_df, pd.DataFrame(sales_rows)
 
 # --- 2. SIDEBAR ---
-with st.sidebar:
-    st.markdown("<h2 style='letter-spacing:-1px;'>Intelligence Engine</h2>", unsafe_allow_html=True)
-    st.markdown("---")
-    if st.button("Sync Data Feed", use_container_width=True):
-        st.session_state["inv_data"], st.session_state["sales_data"] = generate_simulation()
-        st.toast("Telemetry data synced.")
+st.sidebar.markdown("<h1 style='font-size: 40px;'>M.C.</h1>", unsafe_allow_html=True)
+st.sidebar.markdown("<div class='sidebar-label'>CONTROL PANEL</div>", unsafe_allow_html=True)
 
-# --- 3. MAIN UI ---
+if st.sidebar.button("Initialize Data Engine"):
+    inv, sales = generate_simulation()
+    st.session_state["inv_data"] = inv
+    st.session_state["sales_data"] = sales
+
+# --- 3. MAIN DASHBOARD ---
 if "inv_data" in st.session_state:
-    f_inv, f_sales = st.session_state["inv_data"], st.session_state["sales_data"]
-    
-    # Filtering Sidebar
+    f_inv = st.session_state["inv_data"]
+    f_sales = st.session_state["sales_data"]
+
+    # Filters
     all_series = sorted(f_inv['Series'].unique().tolist())
-    selected_series = st.sidebar.multiselect("Active Filters", options=all_series, default=all_series)
+    selected_series = st.sidebar.multiselect("Active Inventory Filters", options=all_series, default=all_series)
     f_inv = f_inv[f_inv['Series'].isin(selected_series)]
     f_sales = f_sales[f_sales['Series'].isin(selected_series)]
 
-    # Header Section
-    st.markdown("<h1 style='font-weight: 800; font-size: 3rem; margin-bottom: 0;'>Inventory <span style='color:#6366F1'>Pulse</span></h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #888; margin-top: -10px;'>High-fidelity asset tracking and margin analytics.</p>", unsafe_allow_html=True)
-    
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Total Assets", f"{len(f_inv)} Units")
-    m2.metric("30D Throughput", f"{len(f_sales)} Units")
-    m3.metric("Avg. Age", f"{int(f_inv['Days_on_Lot'].mean())} Days")
-    m4.metric("Burn Rate", f"${f_inv['Est_Bleed_Cost'].sum():,}")
+    # Header
+    col_a, col_b, col_c = st.columns([2, 1, 1])
+    with col_a:
+        st.title("Inventory & Velocity")
+    with col_b:
+        st.metric("Units Grounded", len(f_inv))
+    with col_c:
+        st.metric("30-Day Turn", len(f_sales))
 
-    st.markdown("---")
-    
-    tab1, tab2, tab3 = st.tabs(["[ Inventory Ledger ]", "[ Shortage Analysis ]", "[ Visual Mapping ]"])
+    tab1, tab2, tab3 = st.tabs(["Stock Ledger", "Shortage Delta", "Asset Distribution"])
 
     with tab1:
         st.dataframe(
-            f_inv, 
-            use_container_width=True, 
-            hide_index=True,
-            column_config={
-                "Est_Bleed_Cost": st.column_config.NumberColumn("Est. Cost", format="$%d"),
-                "Demand": st.column_config.ProgressColumn("Demand Score", min_value=0, max_value=100),
-                "VIN": None # Hide VIN for cleanliness
-            }
+            f_inv[['Series', 'Trim', 'DisplayColor', 'Status', 'Days_on_Lot', 'Est_Bleed_Cost', 'CRM_Demand_Score']], 
+            use_container_width=True, hide_index=True,
+            column_config={"CRM_Demand_Score": st.column_config.ProgressColumn("Demand Heat", min_value=0, max_value=100)}
         )
 
     with tab2:
-        inv_p = f_inv.pivot_table(index=['Series', 'Trim'], columns='DisplayColor', values='Status', aggfunc='count', fill_value=0)
+        inv_p = f_inv.pivot_table(index=['Series', 'Trim'], columns='DisplayColor', values='VIN', aggfunc='count', fill_value=0)
         sal_p = f_sales.pivot_table(index=['Series', 'Trim'], columns='DisplayColor', values='VIN', aggfunc='count', fill_value=0)
-        delta_pivot = inv_p.subtract(sal_p, fill_value=0).astype(int).reset_index()
+        delta_pivot = inv_p.subtract(sal_p, fill_value=0).fillna(0).astype(int).reset_index()
+        
+        def color_delta(val):
+            if not isinstance(val, int): return ''
+            if val < 0: return 'background-color: #FFE5E5; color: #D00000; font-weight: bold;'
+            if val > 0: return 'background-color: #E5F9E5; color: #008000; font-weight: bold;'
+            return 'color: #CCC;'
 
-        def color_logic(val):
-            if not isinstance(val, int) or val == 0: return 'color: #444;'
-            if val < 0: return 'background-color: rgba(239, 68, 68, 0.1); color: #F87171;'
-            return 'background-color: rgba(34, 197, 94, 0.1); color: #4ADE80;'
-
-        st.dataframe(delta_pivot.style.map(color_logic, subset=delta_pivot.columns[2:]), use_container_width=True, hide_index=True)
+        color_cols = [c for c in delta_pivot.columns if c not in ['Series', 'Trim']]
+        st.dataframe(delta_pivot.style.map(color_delta, subset=color_cols), use_container_width=True, hide_index=True)
 
     with tab3:
+        # --- FIXED SUNBURST WHEEL ---
+        # I used 'color=Series' and a categorical scale to ensure every slice is distinct.
         fig = px.sunburst(
-            f_inv, path=['Series', 'Trim', 'DisplayColor'],
-            color_discrete_sequence=["#4F46E5", "#6366F1", "#818CF8", "#A5B4FC", "#C7D2FE"]
+            f_inv, 
+            path=['Series', 'Trim', 'DisplayColor'],
+            color='Series', 
+            color_discrete_sequence=px.colors.qualitative.Pastel,
+            template="plotly_white"
         )
+        
+        fig.update_traces(
+            hovertemplate='<b>%{label}</b><br>Stock: %{value}',
+            marker=dict(line=dict(color='#FFFFFF', width=1.5)),
+            textinfo="label"
+        )
+        
         fig.update_layout(
-            height=600, margin=dict(t=0, l=0, r=0, b=0),
-            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(family="Outfit", size=14, color="#FFF")
+            height=700,
+            margin=dict(t=0, l=0, r=0, b=0),
+            paper_bgcolor='rgba(0,0,0,0)',
         )
         st.plotly_chart(fig, use_container_width=True)
 
 else:
-    st.info("System Standby. Please initiate 'Sync Data Feed' from the command panel.")
+    st.info("Awaiting system initialization via sidebar.")
 
-st.markdown("<div style='margin-top: 100px; opacity: 0.3; font-size: 10px; text-align: center; letter-spacing: 2px;'>OPERATIONAL INTELLIGENCE SYSTEM // v2.0.4</div>", unsafe_allow_html=True)
+st.markdown("---")
+st.markdown("<div style='text-align: center; color: #AAA; font-size: 11px;'>EST. 2026 | MARGIN CONTROL SYSTEMS</div>", unsafe_allow_html=True)
